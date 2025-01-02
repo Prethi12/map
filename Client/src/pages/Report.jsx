@@ -18,10 +18,16 @@ const MapEvents = ({ markers, setMarkers }) => {
   useMapEvents({
     click(e) {
       const latlng = e.latlng;
-      const existingMarker = markers.find(marker => marker.lat === latlng.lat && marker.lng === latlng.lng);
+      const existingMarker = markers.find(
+        (marker) => marker.lat === latlng.lat && marker.lng === latlng.lng
+      );
 
       if (existingMarker) {
-        setMarkers(markers.filter(marker => marker.lat !== latlng.lat || marker.lng !== latlng.lng));
+        setMarkers(
+          markers.filter(
+            (marker) => marker.lat !== latlng.lat || marker.lng !== latlng.lng
+          )
+        );
       } else {
         if (markers.length < 2) {
           setMarkers([...markers, latlng]);
@@ -44,16 +50,14 @@ const MapEvents = ({ markers, setMarkers }) => {
         routeWhileDragging: false,
         lineOptions: {
           styles: [{ color: 'red', opacity: 0.9, weight: 6 }],
-          addWaypoints: false,
         },
         show: false,
-        addWaypoints: false,
       });
 
       routingControl.addTo(map);
 
       return () => {
-        map.eachLayer(layer => {
+        map.eachLayer((layer) => {
           if (layer instanceof L.Routing.Control) {
             map.removeLayer(layer);
           }
@@ -69,15 +73,35 @@ const MapEvents = ({ markers, setMarkers }) => {
 const Report = () => {
   const [markers, setMarkers] = useState([]);
 
+  const handleMarkerClick = (position) => {
+    setMarkers(
+      markers.filter(
+        (marker) => marker.lat !== position.lat || marker.lng !== position.lng
+      )
+    );
+  };
+
   return (
-    <MapContainer center={[13.0827, 80.2707]} zoom={13} scrollWheelZoom={true} style={{ height: '100vh', width: '100%' }}>
+    <MapContainer
+      center={[13.0827, 80.2707]}
+      zoom={13}
+      scrollWheelZoom={true}
+      style={{ height: '100vh', width: '100%' }}
+    >
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url='https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
       />
       <MapEvents markers={markers} setMarkers={setMarkers} />
       {markers.map((position, idx) => (
-        <Marker key={idx} position={position} icon={redIcon}>
+        <Marker
+          key={idx}
+          position={position}
+          icon={redIcon}
+          eventHandlers={{
+            click: () => handleMarkerClick(position),
+          }}
+        >
           <Popup>
             Marker at [{position.lat.toFixed(5)}, {position.lng.toFixed(5)}]
           </Popup>
